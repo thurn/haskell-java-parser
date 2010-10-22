@@ -1,0 +1,20 @@
+This is an implementation of a parser for Java 1.4 in
+Haskell. A deal of work remains to be done to clean up the
+results and present the parse tree in a useful form, but 
+a large body of Java 1.4 code can be parsed successfully. 
+
+The code depends only on the Parsec library for building 
+Haskell recursive descent parsers.
+
+== Use ==
+
+* Run "make" to compile and run tests!
+
+== Known Issues ==
+* Comments cannot occur inside literals. For example:
+  int i = 0x/*hello*/CAFEBABE;
+* Unicode escapes are not supported (I have no immediate 
+  plans to add support)
+
+These issues are causing unit tests 196, 229, 252, 518, and
+530 to fail.

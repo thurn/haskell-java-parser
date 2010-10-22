@@ -1,0 +1,306 @@
+// /* colorpaintcontext.java -- context for painting solid colors
+//    copyright (c) 2002, 2004 free software foundation, inc.
+
+// this file is part of gnu classpath.
+
+// gnu classpath is free software; you can redistribute it and/or modify
+// it under the terms of the gnu general public license as published by
+// the free software foundation; either version 2, or (at your option)
+// any later version.
+
+// gnu classpath is distributed in the hope that it will be useful, but
+// without any warranty; without even the implied warranty of
+// merchantability or fitness for a particular purpose.  see the gnu
+// general public license for more details.
+
+// you should have received a copy of the gnu general public license
+// along with gnu classpath; see the file copying.  if not, write to the
+// free software foundation, inc., 59 temple place, suite 330, boston, ma
+// 02111-1307 usa.
+
+// linking this library statically or dynamically with other modules is
+// making a combined work based on this library.  thus, the terms and
+// conditions of the gnu general public license cover the whole
+// combination.
+
+// as a special exception, the copyright holders of this library give you
+// permission to link this library with independent modules to produce an
+// executable, regardless of the license terms of these independent
+// modules, and to copy and distribute the resulting executable under
+// terms of your choice, provided that you also meet, for each linked
+// independent module, the terms and conditions of the license of that
+// module.  an independent module is a module which is not derived from
+// or based on this library.  if you modify this library, you may extend
+// this exception to your version of the library, but you are not
+// obligated to do so.  if you do not wish to do so, delete this
+// exception statement from your version. */
+
+
+// package java.awt;
+
+// import java.awt.image.colormodel;
+// import java.awt.image.raster;
+
+// /**
+//  * this class provides a paint context which will fill a rectanglar region of
+//  * a raster scan with the given color. however, it is not yet completely
+//  * implemented.
+//  *
+//  * @author eric blake <ebb9@email.byu.edu>
+//  */
+// class colorpaintcontext implements paintcontext
+// {
+//   /**
+//    * the color to fill any raster with. package visible for use in
+//    * systemcolor.
+//    */
+//   final int color;
+//   final colormodel colormodel;
+
+//   private colorraster cachedraster;
+
+  
+//   /**
+//    * create the context for a given color.
+//    *
+//    * @param c the solid color to use.
+//    */
+//   colorpaintcontext(int colorrgb)
+//   {
+//     this(colormodel.getrgbdefault(), colorrgb);
+//   }
+  
+//   /**
+//    * create the context for a given color.
+//    *
+//    * @param cm the color model of this context. 
+//    * @param c the solid color to use.
+//    */
+//   colorpaintcontext(colormodel cm,int colorrgb)
+//   {
+//     color = colorrgb;
+//     colormodel = cm;
+//   }
+
+//   /**
+//    * release the resources allocated for the paint. as the color is constant,
+//    * there aren't any resources.
+//    */
+//   public void dispose()
+//   {
+//   }
+
+//   /**
+//    * return the color model of this context. 
+//    *
+//    * @return the context color model
+//    */
+//   public colormodel getcolormodel()
+//   {
+//     return colormodel;
+//   }
+
+//   /**
+//    * return a raster containing the colors for the graphics operation.
+//    *
+//    * @param x the x-coordinate, in device space
+//    * @param y the y-coordinate, in device space
+//    * @param w the width, in device space
+//    * @param h the height, in device space
+//    * @return a raster for the given area and color
+//    */
+//   public raster getraster(int x, int y, int width, int height)
+//   {
+//    if(  cachedraster == null 
+//        || cachedraster.getwidth() < width
+//        || cachedraster.getheight() < height)
+//    {
+//      cachedraster = new colorraster(colormodel, 0, 0, width, height, color);
+//    }
+//    return cachedraster.createchild(0 ,0 ,width ,height ,x ,y , null);
+//   }
+  
+//   /**
+//    * a colorraster is a raster that is completely filled with one color. the 
+//    * data layout is taken from the color model given to the constructor.
+//    */
+//   private class colorraster extends raster
+//   {
+    
+//     /**
+//      * create a raster that is compaltible with the given color model and 
+//      * filled with the given color.
+//      * @param cm the color model for this raster.
+//      * @param x the smallest horizontal corrdinate in the raster.
+//      * @param y the smallest vertical coordinate in the raster.
+//      * @param width the width of the raster.
+//      * @param height the height of the raster.
+//      * @param rgbpixel the rgb value of the color for this raster.
+//      */
+//     colorraster(colormodel cm,int x, int y, int width, int height, int rgbpixel)
+//     {         
+//       super(cm.createcompatiblesamplemodel(width,height),new point(x,y));
+//       object pixel = cm.getdataelements(rgbpixel,null);
+//       getsamplemodel().setdataelements(0, 0,
+//                                        width, height,
+//                                        multiplydata(pixel,null,width*height),
+//                                        databuffer);
+//     }
+    
+    
+    
+//     private object multiplydata(object src, object dest, int factor)
+//     {
+//       object from;
+//       int srclength = 0;
+//       if (src instanceof byte[])
+//       {
+//         srclength = ((byte[])src).length;
+        
+//         if (dest == null) dest = new byte[factor * srclength];
+//       }
+//       else if (src instanceof short[])
+//       {
+//         srclength = ((short[])src).length;
+//         if (dest == null) dest = new short[factor * srclength];
+//       }
+//       else if (src instanceof int[])
+//       {
+//         srclength = ((int[]) src).length;
+//         if (dest == null) dest = new int[factor * srclength];
+//       }
+//       else
+//       {
+//         throw new classcastexception("unknown data buffer type");
+//       }
+      
+//       system.arraycopy(src,0,dest,0,srclength);
+      
+//       int count = 1;
+//       while(count*2 < factor)
+//       {
+//         system.arraycopy(dest, 0, dest, count * srclength, count*srclength);
+//         count *= 2; 
+//       }
+      
+//       if(factor > count)
+//         system.arraycopy(dest,0, dest, count * srclength, 
+//                          (factor - count) * srclength );
+      
+//       return dest;
+//     }
+    
+//   }
+  
+// } // class colorpaintcontext
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* colorpaintcontext.java -- context for painting solid colors
+   copyright (c) 2002, 2004 free software foundation, inc.
+
+this file is part of gnu classpath.
+
+gnu classpath is free software; you can redistribute it and/or modify
+it under the terms of the gnu general public license as published by
+the free software foundation; either version 2, or (at your option)
+any later version.
+
+gnu classpath is distributed in the hope that it will be useful, but
+without any warranty; without even the implied warranty of
+merchantability or fitness for a particular purpose.  see the gnu
+general public license for more details.
+
+you should have received a copy of the gnu general public license
+along with gnu classpath; see the file copying.  if not, write to the
+free software foundation, inc., 59 temple place, suite 330, boston, ma
+02111-1307 usa.
+
+linking this library statically or dynamically with other modules is
+making a combined work based on this library.  thus, the terms and
+conditions of the gnu general public license cover the whole
+combination.
+
+as a special exception, the copyright holders of this library give you
+permission to link this library with independent modules to produce an
+executable, regardless of the license terms of these independent
+modules, and to copy and distribute the resulting executable under
+terms of your choice, provided that you also meet, for each linked
+independent module, the terms and conditions of the license of that
+module.  an independent module is a module which is not derived from
+or based on this library.  if you modify this library, you may extend
+this exception to your version of the library, but you are not
+obligated to do so.  if you do not wish to do so, delete this
+exception statement from your version. */
+
+
+package java.awt;
+
+import java.awt.image.colormodel;
+import java.awt.image.raster;
+
+/**
+ * this class provides a paint context which will fill a rectanglar region of
+ * a raster scan with the given color. however, it is not yet completely
+ * implemented.
+ *
+ * @author eric blake <ebb9@email.byu.edu>
+ */
+class colorpaintcontext implements paintcontext
+{
+    private object multiplydata(object src, object dest, int factor)
+    {
+      object from;
+      int srclength = 0;
+      if (src instanceof byte[])
+      {
+        srclength = ((byte[])src).length;
+        
+        if (dest == null) dest = new byte[factor * srclength];
+      }
+      else if (src instanceof short[])
+      {
+        srclength = ((short[])src).length;
+        if (dest == null) dest = new short[factor * srclength];
+      }
+      else if (src instanceof int[])
+      {
+        srclength = ((int[]) src).length;
+        if (dest == null) dest = new int[factor * srclength];
+      }
+      else
+      {
+        throw new classcastexception("unknown data buffer type");
+      }
+      
+      system.arraycopy(src,0,dest,0,srclength);
+      
+      int count = 1;
+      while(count*2 < factor)
+      {
+        system.arraycopy(dest, 0, dest, count * srclength, count*srclength);
+        count *= 2; 
+      }
+      
+      if(factor > count)
+        system.arraycopy(dest,0, dest, count * srclength, 
+                         (factor - count) * srclength );
+      
+      return dest;
+    }
+    
+  }
+  
+} // class colorpaintcontext
+
+
